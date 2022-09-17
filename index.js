@@ -129,7 +129,7 @@ async function run() {
       const booking = req.body;
       const result = await bookingCollection.insertOne(booking);
       console.log("Email sent");
-      sendBookingEmail(booking);
+      // sendBookingEmail(booking);
       res.send(result);
     });
 
