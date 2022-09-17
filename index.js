@@ -129,7 +129,7 @@ async function run() {
       const booking = req.body;
       const result = await bookingCollection.insertOne(booking);
       console.log("Email sent");
-        sendBookingEmail(booking);
+      sendBookingEmail(booking);
       res.send(result);
     });
 
@@ -141,7 +141,14 @@ async function run() {
     app.get("/booking/:email", verifyJwt, async (req, res) => {
       const email = req.params.email;
       const filter = { email: email };
-      const result = await bookingCollection.find(filter).toArray();
+      const result = await (await bookingCollection.find(filter).toArray()).reverse();
+      res.send(result);
+    });
+
+    app.delete("/booked/:id", async (req, res) => {
+      const id = req.params.id;
+      const filter = { _id: ObjectId(id) };
+      const result = await bookingCollection.deleteOne(filter);
       res.send(result);
     });
 
@@ -173,15 +180,20 @@ async function run() {
       res.send({ admin: isAdmin });
     });
 
-    app.patch("/user/admin/:email", verifyJwt, verifyAdmin, async (req, res) => {
-      const email = req.params.email;
-      const filter = { email: email };
-      const updatedDoc = {
-        $set: { role: "admin" },
-      };
-      const result = await userCollection.updateOne(filter, updatedDoc);
-      res.send(result);
-    });
+    app.patch(
+      "/user/admin/:email",
+      verifyJwt,
+      verifyAdmin,
+      async (req, res) => {
+        const email = req.params.email;
+        const filter = { email: email };
+        const updatedDoc = {
+          $set: { role: "admin" },
+        };
+        const result = await userCollection.updateOne(filter, updatedDoc);
+        res.send(result);
+      }
+    );
 
     app.get("/services", async (req, res) => {
       const result = await serviceCollection.find({}).toArray();
