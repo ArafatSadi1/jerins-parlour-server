@@ -76,6 +76,7 @@ async function run() {
     const serviceCollection = client
       .db("jerins-parlour")
       .collection("services");
+    const reviewCollection = client.db("jerins-parlour").collection("review");
     const bookingCollection = client.db("jerins-parlour").collection("booking");
     const userCollection = client.db("jerins-parlour").collection("user");
     const paymentCollection = client.db("jerins-parlour").collection("payment");
@@ -141,7 +142,9 @@ async function run() {
     app.get("/booking/:email", verifyJwt, async (req, res) => {
       const email = req.params.email;
       const filter = { email: email };
-      const result = await (await bookingCollection.find(filter).toArray()).reverse();
+      const result = await (
+        await bookingCollection.find(filter).toArray()
+      ).reverse();
       res.send(result);
     });
 
@@ -205,6 +208,15 @@ async function run() {
       res.send(result);
     });
 
+    app.post("/review", verifyJwt, async (req, res) => {
+      const review = req.body;
+      const result = await reviewCollection.insertOne(review);
+      res.send(result);
+    });
+    app.get("/reviews", async (req, res) => {
+      const result = await reviewCollection.find({ review }).toArray();
+      res.send(result);
+    });
     app.post("/services", verifyJwt, async (req, res) => {
       const service = req.body;
       const result = await serviceCollection.insertOne(service);
